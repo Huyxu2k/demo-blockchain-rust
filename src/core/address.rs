@@ -17,7 +17,10 @@ pub enum AddressError{
    #[error("Invalid length")]
    INVALID_LENGTH,
 }
-
+#[derive(Debug,Clone,Deserialize,Serialize)]
+pub struct  AddressDTO{
+    pub address:String
+}
 
 #[derive(Debug,Default,Clone,Serialize,Deserialize,PartialEq,Eq,Hash)]
 #[serde(try_from="String",into="String")]

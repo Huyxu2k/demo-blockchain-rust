@@ -9,10 +9,10 @@ use crate::{
 };
 use anyhow::Result;
 use log::info;
-use super::handler::{get_blocks};
+use super::handler::{get_blocks,add_block,add_balances, get_balances, get_balance_by_address};
 use axum::{
     http::{HeaderValue, Method, header::{AUTHORIZATION, ACCEPT}}, 
-    routing::get, Router, extract::State,
+    routing::{get, post}, Router, extract::State,
 };
 use tower_http::cors::CorsLayer;
 
@@ -58,7 +58,7 @@ async fn start_server(port: u16, blockchain: Blockchain, pool: TransactionPool) 
     let app = Router::new()
                              .nest("/api",App())
                              .with_state(state);
-    info!("🚀 Server started successfully");
+    info!("🚀 Server started successfully: {}",url.clone());
     axum::Server::bind(&url.parse().unwrap())
         .serve(app.into_make_service())
         .await
@@ -70,5 +70,8 @@ async fn start_server(port: u16, blockchain: Blockchain, pool: TransactionPool) 
 pub fn App()->Router<ApiState>{
     Router::new()
        .route("/blocks",get(get_blocks))
-       //.route("get_balance",get(get_balance))
+       .route("/add_block",post(add_block))
+       .route("/add_account_balance",post(add_balances))
+       .route("/get_balances", get(get_balances))
+       .route("/get_balance_by_address", get(get_balance_by_address))
 }

@@ -2,7 +2,7 @@ use log::info;
 use serde::de::value;
 
 use  super::transaction::Transaction;
-
+use  serde::{Deserialize,Serialize};
 
 use std::sync::{Arc,Mutex};
 
@@ -49,6 +49,11 @@ impl TransactionPool {
         //lock TransactionVec when excute command
         let mut transactions=self.transactions.lock().unwrap();
         transactions.retain(|a| !a.eq(&value));
+
+        transactions.to_vec()
+    }
+    pub fn get_transactions(&self)->TransactionVec{
+        let mut transactions=self.transactions.lock().unwrap();
 
         transactions.to_vec()
     }

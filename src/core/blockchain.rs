@@ -89,9 +89,9 @@ impl Blockchain {
             return  Err(BlockChainError::INVALID_HASH.into());
         }
 
-        if block.hash.leading_zeros()<self.difficulty{
-            return  Err(BlockChainError::INVALID_DIFFICULTY.into());
-        }
+        // if block.hash.leading_zeros()<self.difficulty{
+        //     return  Err(BlockChainError::INVALID_DIFFICULTY.into());
+        // }
 
         self.update_account_balances(&block.transaction)?;
         blocks.push(block);
@@ -113,7 +113,7 @@ fn calculate_new_acccount_balances(account_balance:&AccountBalanceMap,transacion
    let mut new_account_balances=account_balance.clone();
    let mut iter=transacion.iter();
 
-   process_coinbase(&mut new_account_balances, iter.next())?;
+   //process_coinbase(&mut new_account_balances, iter.next())?;
 
    process_transfers(&mut new_account_balances, iter)?;
 
