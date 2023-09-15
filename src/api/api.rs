@@ -9,7 +9,7 @@ use crate::{
 };
 use anyhow::Result;
 use log::info;
-use super::handler::{get_blocks,add_block,add_balances, get_balances, get_balance_by_address};
+use super::handler::{get_blocks,add_block,add_balances, get_balances, get_balance_by_address, get_transactions};
 use axum::{
     http::{HeaderValue, Method, header::{AUTHORIZATION, ACCEPT}}, 
     routing::{get, post}, Router, extract::State,
@@ -74,4 +74,5 @@ pub fn App()->Router<ApiState>{
        .route("/add_account_balance",post(add_balances))
        .route("/get_balances", get(get_balances))
        .route("/get_balance_by_address", get(get_balance_by_address))
+       .route("/get_transactions", get(get_transactions))
 }

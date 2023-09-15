@@ -37,6 +37,8 @@ pub async fn add_block(
     let result = blockchain.add_block(block.clone());
 
     //add transaction 
+    let mut transaction=block.transaction;
+    let state_clone=state.clone().pool.add_vec(transaction);
 
 
     match result {
@@ -92,10 +94,10 @@ pub async fn add_balances(State(state): State<ApiState>,Json(balances): Json<Vec
 pub async fn get_transactions(
     State(state): State<ApiState>
 ) -> impl IntoResponse {
-   let mut transactions=state.pool.get_transactions();
+   let transactions=state.pool.get_transactions();
 
 
-   IntoResponse::into_response((StatusCode::OK,Json(&transactions)))
+   IntoResponse::into_response((StatusCode::OK,Json::from(&transactions)))
 
 }
 ///Call transaction

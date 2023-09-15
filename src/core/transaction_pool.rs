@@ -25,12 +25,14 @@ impl TransactionPool {
     }
     pub fn add(&self,transaction:Transaction){
         //verify transaction
-        
-
         //lock TransactionVec when excute command
         let mut transactions=self.transactions.lock().unwrap();
         transactions.push(transaction);
         info!("transaction added");
+    }
+    pub fn add_vec(&self,mut transactions_data:Vec<Transaction>){
+        let mut transactions=self.transactions.lock().unwrap();
+        transactions.append(&mut transactions_data)
     }
     pub fn count(&self)->usize{
         let mut transactions=self.transactions.lock().unwrap();
