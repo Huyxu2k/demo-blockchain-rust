@@ -132,3 +132,8 @@ impl fmt::Display for Address {
         write!(f, "{}", hex::encode(self.0))
     }
 }
+
+#[cfg(test)]
+mod tests{
+    
+}

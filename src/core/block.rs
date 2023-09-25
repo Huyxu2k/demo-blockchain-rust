@@ -2,7 +2,8 @@ use chrono::Utc;
 use crypto::{sha2::Sha256, digest::Digest};
 use ethereum_types::U256;
 use  serde::{Deserialize,Serialize};
-use  super::transaction::Transaction;
+use  super::{transaction::Transaction, transaction_pool::{TransactionPool,SyncedTransactionVec}};
+use anyhow::{Result, Ok};
 
 ///Block Struct
 /// 
@@ -11,17 +12,17 @@ use  super::transaction::Transaction;
 pub struct Block{
    pub id:u64,
    pub timestamp:i64,
-   pub transaction:Vec<Transaction>,
+   pub transactions:Vec<Transaction>,
    pub hash:U256,
    pub previous_hash:U256,
    pub nonce:u64,
 }
 impl Block {
-    pub fn new(id:u64,nonce:u64,previous_hash:U256,transaction:Vec<Transaction>)->Block{
+    pub fn new(id:u64,nonce:u64,previous_hash:U256,transactions:Vec<Transaction>)->Block{
         let mut block=Block{ 
                    id, 
                    timestamp:Utc::now().timestamp_millis(), 
-                   transaction, 
+                   transactions, 
                    hash: U256::default(), 
                    previous_hash, 
                    nonce 
@@ -41,6 +42,15 @@ impl Block {
       hasher.result(&mut byte);
 
       U256::from(byte)
-
+    }
+    pub fn get_transaction_count(&self)->usize{
+      self.transactions.len()
+    }
+    pub fn add_transaction(&mut self,transactions:&mut Vec<Transaction>)->Result<()>{
+      self.transactions.append(transactions);
+      Ok(())
+    }
+    pub fn verify_own_hash(&mut self)->bool{
+        todo!()
     }
 }

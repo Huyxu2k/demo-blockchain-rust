@@ -1,20 +1,16 @@
-use std::net::SocketAddr;
-
 use crate::{
     core::{
-        block::Block, blockchain::Blockchain, transaction::Transaction,
+        blockchain::Blockchain,
         transaction_pool::TransactionPool,
     },
     utils::{context::Context, execution::Runnable},
 };
 use anyhow::Result;
 use log::info;
-use super::handler::{get_blocks,add_block,add_balances, get_balances, get_balance_by_address, get_transactions};
+use super::handler::{get_blocks,add_block,create_account, create_tokens_account, get_tokens_by_address,get_transactions};
 use axum::{
-    http::{HeaderValue, Method, header::{AUTHORIZATION, ACCEPT}}, 
-    routing::{get, post}, Router, extract::State,
+    routing::{get, post}, Router,
 };
-use tower_http::cors::CorsLayer;
 
 #[derive(Debug,Clone)]
 pub struct ApiState {
@@ -56,7 +52,7 @@ async fn start_server(port: u16, blockchain: Blockchain, pool: TransactionPool) 
     //     .allow_credentials(true)
     //     .allow_headers([AUTHORIZATION, ACCEPT]);
     let app = Router::new()
-                             .nest("/api",App())
+                             .nest("/api",app())
                              .with_state(state);
     info!("🚀 Server started successfully: {}",url.clone());
     axum::Server::bind(&url.parse().unwrap())
@@ -67,12 +63,12 @@ async fn start_server(port: u16, blockchain: Blockchain, pool: TransactionPool) 
 }
 
 
-pub fn App()->Router<ApiState>{
+pub fn app()->Router<ApiState>{
     Router::new()
-       .route("/blocks",get(get_blocks))
+       .route("/get_blocks",get(get_blocks))
        .route("/add_block",post(add_block))
-       .route("/add_account_balance",post(add_balances))
-       .route("/get_balances", get(get_balances))
-       .route("/get_balance_by_address", get(get_balance_by_address))
+       .route("/create_account",post(create_account))
+       .route("/create_tokens_account", post(create_tokens_account))
+       .route("/get_tokens_by_address", get(get_tokens_by_address))
        .route("/get_transactions", get(get_transactions))
 }

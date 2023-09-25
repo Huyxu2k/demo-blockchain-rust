@@ -1,5 +1,5 @@
 use super::address::Address;
-use anyhow::Result;
+use anyhow::{Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
@@ -14,8 +14,8 @@ pub enum AccountError {
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AccountInfo {
-    pub address: String,
-    pub amount: Amount,
+    pub address: Address,
+    pub tokens: u128,
 }
 
 ///New struct Account
@@ -23,12 +23,12 @@ pub struct AccountInfo {
 #[derive(Debug, Clone,Default)]
 pub struct Account(HashMap<Address, Store>);
 impl Account {
-    pub fn create_account(&mut self) -> Result<()> {
+    pub fn create_account(&mut self,user:String) -> Result<Address> {
         let mut address = Address::new();
         //let pubkey=address.generate_public_address().to_string();
-        let store=Store::new();
-        self.0.insert(address, store);
-        Ok(())
+        let store=Store::new(user);
+        self.0.insert(address.clone(), store);
+        Ok(address)
     }
     // pub fn get_public_key_account_(&mut self)->Result<()>{
         
@@ -44,7 +44,7 @@ impl Account {
             self.update_account_tokens(receiver.clone(),receiver_tokens+tokens);
         }
         else {
-            return Err(AccountError::AccountNotExist);
+            return Err(AccountError::AccountNotExist.into());
         }
         Ok(())
     }
@@ -63,23 +63,32 @@ impl Account {
         }
     }
     pub fn update_account_tokens(&mut self,address:Address,token:u128){
-        let mut store=self.0.get(&address.clone()).unwrap();
-        store.tokens=token;
-        self.0.insert(address,store.clone());
+        let store=self.0.get(&address.clone()).unwrap();
+        let mut store_new=store.clone();
+        store_new.tokens=token;
+        self.0.insert(address,store_new);
+    }
+    pub fn create_account_tokens(&mut self,address:Address,token:u128){
+        let store=self.0.get(&address.clone()).unwrap();
+        let mut store_new=store.clone();
+        store_new.tokens+=token;
+        self.0.insert(address, store_new.clone());
     }
 }
 
 /// Store data of account
-#[derive(Debug, Clone)]
+#[derive(Debug,Clone,Deserialize,Serialize,PartialEq, Eq)]
 pub struct Store {
     //pub pubkey:String,
+    pub user:String,
     pub acc_type: AccountType,
     pub tokens: u128, //amount
 }
 impl Store {
-    pub fn new() -> Store {
+    pub fn new(user:String) -> Store {
         Store {
             //pubkey,
+            user,
             acc_type:AccountType::User,
             tokens:1000,//default token
         }
@@ -105,13 +114,11 @@ impl Store {
 }
 
 ///Type of Account
-#[derive(Debug, Clone)]
+#[derive(Debug,Clone,Deserialize,Serialize,PartialEq, Eq)]
 pub enum AccountType {
     User,
     Contract,
     Validator {
         correctly_validated_blocks: u128,
-        incorrectly_validated_blocks: u128,
-        you_get_the_idea: bool,
     },
 }

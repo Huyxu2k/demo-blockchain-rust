@@ -1,8 +1,8 @@
 use  super::{
     address::Address,
     block::Block,
-    blockchain::{BLOCK_SUBSIDY,Blockchain},
-    transaction::Transaction,
+    blockchain::{Blockchain},
+    transaction::{Transaction, TransactionData},
     transaction_pool::{TransactionPool,TransactionVec}
 };
 use  crate::utils::{
@@ -111,8 +111,9 @@ impl  Miner {
     fn create_coinbase_transaction(&self)->Transaction{
         Transaction { 
             sender: Address::default(), 
-            receiver: self.miner_address.clone(), 
-            amount: BLOCK_SUBSIDY 
+            data: TransactionData::TransferTokens { receiver: self.miner_address.clone(), token: 1 },
+            signature: None,
+            tokens: todo!(), 
         }
     }
 }

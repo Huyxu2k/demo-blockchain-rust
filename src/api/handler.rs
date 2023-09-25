@@ -1,5 +1,5 @@
 use super::api::ApiState;
-use crate::core::{block::Block, transaction::{Transaction, self}, blockchain::{BLOCK_SUBSIDY, self}, address::{Address, self, AddressDTO}, account_balance_map::{AccountBalanceMap, Balance}};
+use crate::core::{block::Block, transaction::{Transaction, TransactionData}, address::{Address, self},account::AccountInfo};
 use axum::{
     extract::State,
     http::StatusCode,
@@ -37,7 +37,7 @@ pub async fn add_block(
     let result = blockchain.add_block(block.clone());
 
     //add transaction 
-    let mut transaction=block.transaction;
+    let mut transaction=block.transactions;
     let state_clone=state.clone().pool.add_vec(transaction);
 
 
@@ -54,39 +54,53 @@ pub async fn add_block(
 
 
 }
-///Return balance of address
+///Return tokens of address
 ///
 /// GET
-pub async fn get_balance_by_address(State(state): State<ApiState>, Json(address):Json<AddressDTO>) -> impl IntoResponse {
-    let mut account_balances=state.blockchain.account_balances.lock().unwrap();
+pub async fn get_tokens_by_address(State(state): State<ApiState>, Json(address):Json<Address>) -> impl IntoResponse {
+    let mut accounts=state.blockchain.accounts.lock().unwrap();
     
-    let account=account_balances.get_balance(address.address.clone());
+    let account=accounts.get_account_tokens(&address);
     match account {
-        Some(account)=>{
-             IntoResponse::into_response((StatusCode::OK,Json::from(account)))
+        Ok(acc)=>{
+             IntoResponse::into_response((StatusCode::OK,Json::from(acc)))
         },
-        None=>{
-            let rerult=format!("Not found address: {}",address.address);
+        Err(err)=>{
+            let rerult=format!("Not found address: {}",address.to_string());
             IntoResponse::into_response((StatusCode::BAD_REQUEST,Json(rerult)))
         }
     }
 }
-///get all account balances
-/// 
-/// 
-pub async fn get_balances(State(state): State<ApiState>)->impl IntoResponse{
-    let mut account_balances=state.blockchain.account_balances.lock().unwrap();
+// ///get all account 
+// /// 
+// /// 
+// pub async fn get_accounts(State(state): State<ApiState>)->impl IntoResponse{
+//     let mut blockchain_clone=state.blockchain.clone();
 
-    let accounts=account_balances.get_account_balances();
-    info!("{:#?}",accounts.clone());
-    IntoResponse::into_response((StatusCode::OK,Json(accounts.clone())))
+//     let accounts=blockchain_clone.get_all
+//     info!("{:#?}",accounts.clone());
+//     IntoResponse::into_response((StatusCode::OK,Json(accounts.clone())))
+// }
+
+///Create account
+/// 
+pub async fn create_account(State(state): State<ApiState>,Json(user):Json<String>)->impl IntoResponse{
+    let transaction=Transaction::new(1000,TransactionData::CreateAccount { user });
+    let result=&state.blockchain.create_account(transaction.clone().to_vec()).unwrap();
+
+    //add transaction
+    &state.pool.add(transaction.clone());
+
+    IntoResponse::into_response((StatusCode::OK,Json(format!("Your address is {}",transaction.sender.to_string()))))
 }
-///Add amount 
-pub async fn add_balances(State(state): State<ApiState>,Json(balances): Json<Vec<Balance>>)->impl IntoResponse{
-     let mut vec_account=balances.to_vec();
-     let account_balances=&state.blockchain.account_balances.lock().unwrap().add_account(vec_account);  
 
-     IntoResponse::into_response((StatusCode::OK,Json(json!("Add balances success"))))
+///Add tokens
+pub async fn create_tokens_account(State(state): State<ApiState>,Json(info): Json<Vec<AccountInfo>>)->impl IntoResponse{
+     let  vec_info=info.to_vec();
+     for i in vec_info  {
+        &state.blockchain.accounts.lock().unwrap().create_account_tokens(i.address, i.tokens);
+     }
+     IntoResponse::into_response((StatusCode::OK,Json(json!("Create tokens success"))))
 }
 ///Call transaction
 ///
@@ -96,9 +110,7 @@ pub async fn get_transactions(
 ) -> impl IntoResponse {
    let transactions=state.pool.get_transactions();
 
-
    IntoResponse::into_response((StatusCode::OK,Json::from(&transactions)))
-
 }
 ///Call transaction
 /// 
