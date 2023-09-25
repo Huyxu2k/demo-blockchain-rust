@@ -113,7 +113,7 @@ impl  Miner {
             sender: Address::default(), 
             data: TransactionData::TransferTokens { receiver: self.miner_address.clone(), token: 1 },
             signature: None,
-            tokens: todo!(), 
+            tokens:1, 
         }
     }
 }
