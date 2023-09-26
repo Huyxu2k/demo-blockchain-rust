@@ -44,11 +44,6 @@ pub async fn add_block(
     //add block
     let result = blockchain.add_block(block.clone());
 
-    //add transaction 
-    let mut transaction=block.transactions;
-    let state_clone=state.clone().pool.add_vec(transaction);
-
-
     match result {
         Ok(_) => {
             info!("Received new block {}", block.id);
@@ -103,7 +98,6 @@ pub async fn create_account(State(state): State<ApiState>,Json(user):Json<UserIn
     let result=state.blockchain.create_account(vec_tran.clone());
     match result {
         Ok(re)=>{
-          let res_add=state.clone().pool.add_vec(vec_tran);
           IntoResponse::into_response((StatusCode::OK,Json(format!("Your address is {}",transaction.sender.to_string()))))
         },
         Err(er)=>{
@@ -120,9 +114,9 @@ pub async fn create_tokens_account(State(state): State<ApiState>,Json(info): Jso
      }
      IntoResponse::into_response((StatusCode::OK,Json(json!("Create tokens success"))))
 }
-///Call transaction
+///GET transaction not yet miner
 ///
-///CALL
+///GET
 pub async fn get_transactions(
     State(state): State<ApiState>
 ) -> impl IntoResponse {
@@ -133,10 +127,9 @@ pub async fn get_transactions(
 ///Call transaction
 /// 
 /// 
-pub async fn call_transaction(State(state):State<ApiState>,Json(transaction_json):Json<Transaction>)->impl IntoResponse{
+pub async fn call_transaction(State(mut state):State<ApiState>,Json(transaction_json):Json<Vec<Transaction>>)->impl IntoResponse{
   let transaction=transaction_json;
-  let pool=&state.pool;
-  pool.add(transaction);
+  &state.pool.add_vec(transaction);
 
   IntoResponse::into_response(StatusCode::OK)
 }

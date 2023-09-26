@@ -29,7 +29,7 @@ pub struct Miner{
     pool:TransactionPool,
     target:U256,
 }
-impl  Runnable for Miner {
+impl Runnable for Miner {
     fn run(&self)->Result<()>{
         self.start()
     }
