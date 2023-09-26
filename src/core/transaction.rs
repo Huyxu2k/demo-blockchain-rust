@@ -23,9 +23,9 @@ impl Transaction {
             signature:None,
         }
     }
-    pub fn to_vec(&self)->Vec<Transaction>{
-        self.to_vec()
-    }
+    // pub fn to_vec(&self)->Vec<Transaction>{
+    //     self.to_vec()
+    // }
 }
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub enum TransactionData {

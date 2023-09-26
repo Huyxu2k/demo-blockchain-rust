@@ -14,6 +14,7 @@ pub enum AccountError {
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AccountInfo {
+    //pub user: String,
     pub address: Address,
     pub tokens: u128,
 }
@@ -61,6 +62,16 @@ impl Account {
             },
             None => Err(AccountError::AccountNotExist),
         }
+    }
+    pub fn get_all_account_info(&mut self)->Vec<AccountInfo>{
+        let accounts:Vec<AccountInfo>=self.0.iter().map(|a|{
+            AccountInfo{
+                address:a.0.clone(),
+                tokens:a.1.tokens.clone()
+            }
+        }).collect();
+
+        accounts
     }
     pub fn update_account_tokens(&mut self,address:Address,token:u128){
         let store=self.0.get(&address.clone()).unwrap();

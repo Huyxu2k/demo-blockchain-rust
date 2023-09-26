@@ -3,7 +3,7 @@ use  super::{
     block::Block,
     blockchain::{Blockchain},
     transaction::{Transaction, TransactionData},
-    transaction_pool::{TransactionPool,TransactionVec}
+    transaction_pool::{TransactionPool}
 };
 use  crate::utils::{
     execution::{sleep_millis,Runnable},
@@ -87,7 +87,7 @@ impl  Miner {
     fn must_stop_mining(&self,block_count:u64)->bool{
         self.max_blocks>0 && block_count>= self.max_blocks
     }
-    fn mine_block(&self,last_block:&Block,transactions:&TransactionVec)->Option<Block>{
+    fn mine_block(&self,last_block:&Block,transactions:&Vec<Transaction>)->Option<Block>{
 
         let coinbase=self.create_coinbase_transaction();
         let mut block_transactions=transactions.clone();
@@ -102,7 +102,7 @@ impl  Miner {
         }
         None
     }
-    fn create_next_block(&self, last_block:&Block,transactions:TransactionVec,nonce:u64)->Block{
+    fn create_next_block(&self, last_block:&Block,transactions:Vec<Transaction>,nonce:u64)->Block{
         let id=(last_block.id+1) as u64;
         let previous_hash=last_block.hash;
 

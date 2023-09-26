@@ -2,7 +2,7 @@ use chrono::Utc;
 use crypto::{sha2::Sha256, digest::Digest};
 use ethereum_types::U256;
 use  serde::{Deserialize,Serialize};
-use  super::{transaction::Transaction, transaction_pool::{TransactionPool,SyncedTransactionVec}};
+use  super::{transaction::Transaction};
 use anyhow::{Result, Ok};
 
 ///Block Struct

@@ -1,5 +1,5 @@
 use super::api::ApiState;
-use crate::core::{block::Block, transaction::{Transaction, TransactionData}, address::{Address, self},account::AccountInfo};
+use crate::core::{block::Block, transaction::{Transaction, TransactionData}, address::{Address, self, AddressInfo},account::AccountInfo};
 use axum::{
     extract::State,
     http::StatusCode,
@@ -7,6 +7,7 @@ use axum::{
     Json,
 };
 use serde_json::json;
+use serde::{Deserialize,Serialize};
 
 
 ///Return list of all blocks
@@ -18,6 +19,13 @@ pub async fn get_blocks(State(state): State<ApiState>) -> impl IntoResponse {
     
     IntoResponse::into_response(Json::from(&blocks))
 }
+pub async fn get_accounts(State(state): State<ApiState>)->impl IntoResponse {
+    let blockchain=&state.blockchain;
+    let accounts=blockchain.accounts.lock().unwrap().get_all_account_info();
+    
+    IntoResponse::into_response(Json::from(&accounts))
+}
+
 ///Add a new block to blockchain
 ///
 /// POST
@@ -57,16 +65,16 @@ pub async fn add_block(
 ///Return tokens of address
 ///
 /// GET
-pub async fn get_tokens_by_address(State(state): State<ApiState>, Json(address):Json<Address>) -> impl IntoResponse {
+pub async fn get_tokens_by_address(State(state): State<ApiState>, Json(address):Json<AddressInfo>) -> impl IntoResponse {
     let mut accounts=state.blockchain.accounts.lock().unwrap();
     
-    let account=accounts.get_account_tokens(&address);
+    let account=accounts.get_account_tokens(&Address::try_from(address.address.clone()).unwrap());
     match account {
         Ok(acc)=>{
              IntoResponse::into_response((StatusCode::OK,Json::from(acc)))
         },
         Err(err)=>{
-            let rerult=format!("Not found address: {}",address.to_string());
+            let rerult=format!("Not found address: {}",address.address);
             IntoResponse::into_response((StatusCode::BAD_REQUEST,Json(rerult)))
         }
     }
@@ -82,16 +90,26 @@ pub async fn get_tokens_by_address(State(state): State<ApiState>, Json(address):
 //     IntoResponse::into_response((StatusCode::OK,Json(accounts.clone())))
 // }
 
+#[derive(Debug,Clone,Deserialize,Serialize)]
+pub struct UserInfo{
+    user:String,
+}
+
 ///Create account
 /// 
-pub async fn create_account(State(state): State<ApiState>,Json(user):Json<String>)->impl IntoResponse{
-    let transaction=Transaction::new(1000,TransactionData::CreateAccount { user });
-    let result=&state.blockchain.create_account(transaction.clone().to_vec()).unwrap();
-
-    //add transaction
-    &state.pool.add(transaction.clone());
-
-    IntoResponse::into_response((StatusCode::OK,Json(format!("Your address is {}",transaction.sender.to_string()))))
+pub async fn create_account(State(state): State<ApiState>,Json(user):Json<UserInfo>)->impl IntoResponse{
+    let transaction=Transaction::new(1000,TransactionData::CreateAccount { user: user.user });
+    let mut vec_tran:Vec<Transaction>=vec![transaction.clone()];
+    let result=state.blockchain.create_account(vec_tran.clone());
+    match result {
+        Ok(re)=>{
+          let res_add=state.clone().pool.add_vec(vec_tran);
+          IntoResponse::into_response((StatusCode::OK,Json(format!("Your address is {}",transaction.sender.to_string()))))
+        },
+        Err(er)=>{
+            IntoResponse::into_response((StatusCode::BAD_REQUEST,Json(format!("Error {}",er))))
+        }
+    }
 }
 
 ///Add tokens

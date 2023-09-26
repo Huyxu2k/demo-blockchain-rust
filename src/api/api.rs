@@ -7,7 +7,7 @@ use crate::{
 };
 use anyhow::Result;
 use log::info;
-use super::handler::{get_blocks,add_block,create_account, create_tokens_account, get_tokens_by_address,get_transactions};
+use super::handler::{get_blocks,add_block,create_account, create_tokens_account, get_tokens_by_address,get_transactions, get_accounts};
 use axum::{
     routing::{get, post}, Router,
 };
@@ -67,6 +67,7 @@ pub fn app()->Router<ApiState>{
     Router::new()
        .route("/get_blocks",get(get_blocks))
        .route("/add_block",post(add_block))
+       .route("/get_all_account", get(get_accounts))
        .route("/create_account",post(create_account))
        .route("/create_tokens_account", post(create_tokens_account))
        .route("/get_tokens_by_address", get(get_tokens_by_address))

@@ -5,10 +5,7 @@ use  super::transaction::Transaction;
 use  serde::{Deserialize,Serialize};
 
 use std::sync::{Arc,Mutex};
-
-pub type TransactionVec=Vec<Transaction>;
-
-pub type SyncedTransactionVec=Arc<Mutex<TransactionVec>>;
+pub type SyncedTransactionVec=Arc<Mutex<Vec<Transaction>>>;
 
 ///TransactionPool struct
 /// 
@@ -21,27 +18,24 @@ pub struct  TransactionPool{
 }
 impl TransactionPool {
     pub fn new()->TransactionPool{
-        TransactionPool { transactions: SyncedTransactionVec::default(), }
+        Self { transactions: SyncedTransactionVec::default() }
     }
     pub fn add(&self,transaction:Transaction){
-        //verify transaction
-        //check exist sender & receiver 
-
-
         //lock TransactionVec when excute command
         let mut transactions=self.transactions.lock().unwrap();
         transactions.push(transaction);
-        info!("transaction added");
+        info!("add transaction");
     }
-    pub fn add_vec(&self,mut transactions_data:Vec<Transaction>){
+    pub fn add_vec(&mut self,mut transactions_data:Vec<Transaction>){
         let mut transactions=self.transactions.lock().unwrap();
-        transactions.append(&mut transactions_data)
+        transactions.append(&mut transactions_data);
+        info!("add vec transaction");
     }
     pub fn count(&self)->usize{
         let mut transactions=self.transactions.lock().unwrap();
         transactions.len()
     }
-    pub fn pop(&self)->TransactionVec{
+    pub fn pop(&self)->Vec<Transaction>{
 
         //lock TransactionVec when excute command
         let mut transactions=self.transactions.lock().unwrap();
@@ -49,7 +43,7 @@ impl TransactionPool {
 
         transactions.to_vec()
     }
-    pub fn remove(&self,value:Transaction)->TransactionVec{
+    pub fn remove(&self,value:Transaction)->Vec<Transaction>{
 
         //lock TransactionVec when excute command
         let mut transactions=self.transactions.lock().unwrap();
@@ -57,7 +51,7 @@ impl TransactionPool {
 
         transactions.to_vec()
     }
-    pub fn get_transactions(&self)->TransactionVec{
+    pub fn get_transactions(&self)->Vec<Transaction>{
         let mut transactions=self.transactions.lock().unwrap();
 
         transactions.to_vec()

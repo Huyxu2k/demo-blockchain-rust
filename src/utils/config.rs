@@ -30,7 +30,7 @@ impl Config {
             peers: read_vec_env_var("PEERS",",", StringVec::default()), 
             peer_sync_ms: read_env_var::<u64>("PEER_SYNC_MS", 10000), 
             max_blocks:read_env_var::<u64>("MAX_BLOCKS",0), 
-            difficulty: read_env_var::<u32>("DIFFICULTY",10), 
+            difficulty: read_env_var::<u32>("DIFFICULTY",100), 
             tx_waiting_ms: read_env_var::<u64>("TX_WAITING_MS",10000), 
             miner_address: read_env_var::<Address>("MINER_ADDRESS",Address::default()),
             max_nonce:read_env_var::<u64>("MAX_NONCE",1_000_000) , 

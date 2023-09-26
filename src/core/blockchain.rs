@@ -86,7 +86,9 @@ impl Blockchain {
 
         let mut block = Block::new(last_block.id + 1, 0, last_block.hash, transaction);
         block.hash = block.calculate_hash();
-        self.add_block(block);
+
+        self.execute_transaction(block.clone().transactions)?;
+        blocks.push(block);
         Ok(())
     }
 
@@ -94,6 +96,7 @@ impl Blockchain {
         let blocks = self.blocks.lock().unwrap();
         blocks.clone()
     }
+    //pub fn get_all_account(&self)->
 
     pub fn add_block(&self, block: Block) -> Result<()> {
         let mut blocks = self.blocks.lock().unwrap();

@@ -19,7 +19,7 @@ pub enum AddressError {
     InvalidLength,
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct AddressDTO {
+pub struct AddressInfo {
     pub address: String,
 }
 
