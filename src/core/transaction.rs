@@ -34,4 +34,15 @@ pub enum TransactionData {
     //ChangeStoreValue { address: Address, store: Store },
     //CreateTokens { receiver: Address, amount: u128 },
 }
-
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+pub struct TransactionInfo{
+    pub sender: String,
+    pub tokens: u128,
+    pub data: TransactionDataInfo,
+    pub signature: Option<String>,
+}
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+pub enum TransactionDataInfo{
+    CreateAccountInfo { user: String },
+    TransferTokensInfo { receiver: String, token: u128 },
+}

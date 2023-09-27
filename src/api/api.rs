@@ -7,7 +7,10 @@ use crate::{
 };
 use anyhow::Result;
 use log::info;
-use super::handler::{get_blocks,add_block,create_account, create_tokens_account, get_tokens_by_address,get_transactions, get_accounts};
+use super::handler::{ get_blocks,add_block,create_account,
+                      create_tokens_account, get_tokens_by_address,
+                      get_transactions, get_accounts, call_transaction
+                    };
 use axum::{
     routing::{get, post}, Router,
 };
@@ -72,4 +75,5 @@ pub fn app()->Router<ApiState>{
        .route("/create_tokens_account", post(create_tokens_account))
        .route("/get_tokens_by_address", get(get_tokens_by_address))
        .route("/get_transactions", get(get_transactions))
+       .route("/call_transaction", post(call_transaction))
 }
