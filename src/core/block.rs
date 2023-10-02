@@ -50,6 +50,12 @@ impl Block {
       self.transactions.append(transactions);
       Ok(())
     }
+    pub fn sign_transaction(&mut self)->Result<()>{
+          for tran in &self.transactions {
+              tran.clone().sign_transaction();
+          }
+       Ok(())
+    }
     pub fn verify_own_hash(&mut self)->bool{
         todo!()
     }

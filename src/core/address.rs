@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     convert::{TryFrom, TryInto},
     fmt,
-    str::FromStr,
+    str::{FromStr, Bytes},
 };
 use thiserror::Error;
 
@@ -34,14 +34,15 @@ impl Address {
         let key = SecretKey::new(&mut rand::thread_rng());
         Address(*key.as_ref())
     }
-    pub fn generate_public_address(&mut self) -> PublicKey {
+    // pub fn generate_public_address(&mut self) -> PublicKey {
+    //     let secp=Secp256k1::new();
+    //     let s=SecretKey::from_str(&Self::to_hex_address(&self)).unwrap();
+    //     let key=PublicKey::from_secret_key(&secp,&s);
+    //     key
+    // }
+    pub fn verify_address(self,pubkey:String)->Result<bool,ErrorKey>{
         let secp=Secp256k1::new();
-        let s=SecretKey::from_str(&Self::to_hex_address(&self)).unwrap();
-        let key=PublicKey::from_secret_key(&secp,&s);
-        key
-    }
-    pub fn verify_address(self,pubkey:PublicKey)->Result<bool,ErrorKey>{
-        let secp=Secp256k1::new();
+        let pubkey=PublicKey::from_str(&pubkey).unwrap();
         let signature=sign(&secp,self.0)?;
         let serialize_sig=signature.serialize_compact();
         let result=verify(&secp,serialize_sig, pubkey);
@@ -53,6 +54,12 @@ impl Address {
                 Err(e)
             },
         }
+    }
+    pub fn generate_signature(&self)->String{
+       let secp = Secp256k1::new();
+       let key=SecretKey::from_slice(&self.0).unwrap();
+       let signature=PublicKey::from_secret_key(&secp, &key);
+        signature.to_string()
     }
     pub fn to_hex_address(&self)->String{
         hex::encode(self.0)
@@ -73,7 +80,7 @@ fn verify<C: Verification>(
     //let secp=Secp256k1::new();
     let sig = ecdsa::Signature::from_compact(&sig)?;
     //let pubkey = PublicKey::from_slice(&pubkey)?;
-    let mes=sha256::hash(b"OK").into_bytes();
+    let mes=sha256::hash(b"").into_bytes();
     let msg=Message::from_slice(&mes)?;
     Ok(secp.verify_ecdsa(&msg, &sig, &pubkey).is_ok())
 }
@@ -82,7 +89,7 @@ fn sign<C: Signing>(
     seckey: [u8;32],
 ) -> Result<ecdsa::Signature, ErrorKey> {
     //let secp=Secp256k1::new();
-    let mes = sha256::hash(b"OK").into_bytes();
+    let mes = sha256::hash(b"").into_bytes();
     let msg = Message::from_slice(&mes)?;
     let seckey=SecretKey::from_slice(&seckey)?;
     Ok(secp.sign_ecdsa(&msg, &seckey))

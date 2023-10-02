@@ -126,7 +126,7 @@ pub async fn create_tokens_account(
 ) -> impl IntoResponse {
     let vec_info = info.to_vec();
     for i in vec_info {
-        &state
+        let result = &state
             .blockchain
             .accounts
             .lock()

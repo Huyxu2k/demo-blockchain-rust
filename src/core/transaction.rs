@@ -23,6 +23,23 @@ impl Transaction {
             signature:None,
         }
     }
+    pub fn sign_transaction(&mut self){
+       let signature=Some(self.sender.generate_signature());
+       self.signature=signature;
+    }
+    pub fn is_valid_transaction(&self)->bool{
+        match self.signature.clone() {
+            Some(sign) =>{
+                if self.sender.clone().verify_address(sign).unwrap(){
+                    true
+                }
+                else {
+                    false
+                }
+            },
+            None => false,
+        }
+    }
     // pub fn to_vec(&self)->Vec<Transaction>{
     //     self.to_vec()
     // }

@@ -109,10 +109,9 @@ impl Blockchain {
         if block.previous_hash != last.hash {
             return Err(BlockChainError::InvalidHash.into());
         }
-
-        // if block.hash.leading_zeros()<self.difficulty{
-        //     return  Err(BlockChainError::INVALID_DIFFICULTY.into());
-        // }
+        //sign transaction
+        block.clone().sign_transaction()?;
+        
         //execute tran
         self.execute_transaction(block.clone().transactions)?;
 
