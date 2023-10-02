@@ -86,7 +86,7 @@ impl Blockchain {
 
         let mut block = Block::new(last_block.id + 1, 0, last_block.hash, transaction);
         block.hash = block.calculate_hash();
-
+        block.sign_transaction()?;
         self.execute_transaction(block.clone().transactions)?;
         blocks.push(block);
         Ok(())
