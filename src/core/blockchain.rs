@@ -1,15 +1,11 @@
 use super::{
-    account::{self, Account},
+    account::Account,
     block::Block,
-    transaction::{self, Transaction, TransactionData},
+    transaction::{Transaction, TransactionData},
 };
 use anyhow::Result;
-use chrono::{DateTime, Utc};
-use ethereum_types::{Address, U256};
-use std::{
-    slice::Iter,
-    sync::{Arc, Mutex},
-};
+use ethereum_types::U256;
+use std::sync::{Arc, Mutex};
 use thiserror::Error;
 
 pub type SyncedBlockVec = Arc<Mutex<Vec<Block>>>;
@@ -21,8 +17,8 @@ pub enum BlockChainError {
     #[error("Invalid index")]
     InvalidId,
     #[error("Invalid previous hash")]
-    InvalidPreviousHash,
-    #[error("Invalid hash")]
+    // InvalidPreviousHash,
+    // #[error("Invalid hash")]
     InvalidHash,
     #[error("Invalid difficulty")]
     InvalidDifficulty,
@@ -123,7 +119,7 @@ impl Blockchain {
         for tran in transactions {
             match tran.data {
             TransactionData::CreateAccount { user } => {
-                let result = self.accounts.lock().unwrap().create_account(user).unwrap();
+                let _result = self.accounts.lock().unwrap().create_account(user).unwrap();
             }
             TransactionData::TransferTokens { receiver, token } => {
                 self.accounts

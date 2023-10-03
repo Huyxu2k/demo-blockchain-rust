@@ -1,9 +1,8 @@
 use super::address::Address;
-use anyhow::{Result};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
-pub type Amount = u64;
 
 #[derive(Debug, Error, PartialEq)]
 pub enum AccountError {
@@ -25,7 +24,7 @@ pub struct AccountInfo {
 pub struct Account(HashMap<Address, Store>);
 impl Account {
     pub fn create_account(&mut self,user:String) -> Result<Address> {
-        let mut address = Address::new();
+        let address = Address::new();
         //let pubkey=address.generate_public_address().to_string();
         let store=Store::new(user);
         self.0.insert(address.clone(), store);
@@ -51,7 +50,7 @@ impl Account {
     }
     fn check_exist_account(&mut self,address:&Address)->bool{
         match  self.0.get_key_value(address){
-            Some(account)=>true,
+            Some(_account)=>true,
             None=>false
         }
     }

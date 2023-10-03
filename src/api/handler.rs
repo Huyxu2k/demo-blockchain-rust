@@ -1,14 +1,14 @@
 use super::api::ApiState;
 use crate::core::{
     account::AccountInfo,
-    address::{self, Address, AddressInfo},
+    address::{Address, AddressInfo},
     block::Block,
     transaction::{Transaction, TransactionData, TransactionDataInfo, TransactionInfo},
 };
 use axum::{
     extract::State,
     http::StatusCode,
-    response::{IntoResponse, Response},
+    response::IntoResponse,
     Json,
 };
 use serde::{Deserialize, Serialize};
@@ -71,7 +71,7 @@ pub async fn get_tokens_by_address(
     let account = accounts.get_account_tokens(&Address::try_from(address.address.clone()).unwrap());
     match account {
         Ok(acc) => IntoResponse::into_response((StatusCode::OK, Json::from(acc))),
-        Err(err) => {
+        Err(_err) => {
             let rerult = format!("Not found address: {}", address.address);
             IntoResponse::into_response((StatusCode::BAD_REQUEST, Json(rerult)))
         }
@@ -100,10 +100,10 @@ pub async fn create_account(
     Json(user): Json<UserInfo>,
 ) -> impl IntoResponse {
     let transaction = Transaction::new(1000, TransactionData::CreateAccount { user: user.user.clone() });
-    let mut vec_tran: Vec<Transaction> = vec![transaction.clone()];
+    let vec_tran: Vec<Transaction> = vec![transaction.clone()];
     let result = state.blockchain.create_account(vec_tran.clone());
     match result {
-        Ok(re) => {
+        Ok(_re) => {
             info!("create account: \n user: {} \n address: {}",user.user,transaction.sender.clone().to_string());
             IntoResponse::into_response((
             StatusCode::OK,
@@ -126,7 +126,7 @@ pub async fn create_tokens_account(
 ) -> impl IntoResponse {
     let vec_info = info.to_vec();
     for i in vec_info {
-        let result = &state
+        let _result = &state
             .blockchain
             .accounts
             .lock()
@@ -167,7 +167,7 @@ pub async fn call_transaction(
         signature: a.clone().signature,
     };
 
-    let result =state.pool.add(transaction);
+    let _result =state.pool.add(transaction);
 
     IntoResponse::into_response(StatusCode::OK)
 }

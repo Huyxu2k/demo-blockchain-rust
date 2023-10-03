@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     convert::{TryFrom, TryInto},
     fmt,
-    str::{FromStr, Bytes},
+    str::FromStr,
 };
 use thiserror::Error;
 
@@ -29,8 +29,8 @@ pub struct Address([u8; LEN_ADDRESS]);
 
 impl Address {
     pub fn new() ->Address{
-        let mut rng = rand::thread_rng();
-        let secp = Secp256k1::new();
+        let mut _rng = rand::thread_rng();
+        let _secp = Secp256k1::new();
         let key = SecretKey::new(&mut rand::thread_rng());
         Address(*key.as_ref())
     }
