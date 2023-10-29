@@ -1,4 +1,5 @@
 use std::time::SystemTime;
+use chrono::{Utc,NaiveDateTime};
 
 use super::{account::{Store, Account}, address::Address,blockchain::{SyncedAccountVec,SyncedBlockVec,Blockchain}};
 use serde::{Deserialize, Serialize};
@@ -8,29 +9,41 @@ use anyhow::Result;
 ///
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
 pub struct Transaction {
-    pub sender: Address,
-    pub tokens: u128,
-    pub data: TransactionData,
+    pub tx_hash: Address,
+    //pub tx_receipt_status:bool,
+    pub block_height: u128,
+    pub time_stamp: i64,
+    pub from: Address,
+    pub to:Address,
+    pub value:i128,
+    pub nonce:u128,
+    pub input_data:Option<String>,
     pub signature: Option<String>,
 }
 impl Transaction {
-    pub fn new(tokens: u128,data:TransactionData) -> Transaction {
-        let sender=Address::new();
+    pub fn new(from:Address,to:Address,value:i128,input_data:Option<String>) -> Transaction {
+        let time_now=Utc::now().naive_utc().timestamp_millis();
+        let tx_hash=Address::new();
         Transaction {
-            sender,
-            tokens,
-            data,
+            tx_hash: tx_hash,
+            block_height: todo!(),
+            time_stamp: time_now,
+            from:from,
+            to:to,
+            value: value,
+            nonce: 0,
+            input_data: input_data,
             signature:None,
         }
     }
     pub fn sign_transaction(&mut self){
-       let signature=Some(self.sender.generate_signature());
+       let signature=Some(self.from.generate_signature());
        self.signature=signature;
     }
     pub fn is_valid_transaction(&self)->bool{
         match self.signature.clone() {
             Some(sign) =>{
-                if self.sender.clone().verify_address(sign).unwrap(){
+                if self.from.clone().verify_address(sign).unwrap(){
                     true
                 }
                 else {
@@ -44,22 +57,25 @@ impl Transaction {
     //     self.to_vec()
     // }
 }
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
-pub enum TransactionData {
-    CreateAccount { user: String },
-    TransferTokens { receiver: Address, token: u128 },
-    //ChangeStoreValue { address: Address, store: Store },
-    //CreateTokens { receiver: Address, amount: u128 },
-}
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
-pub struct TransactionInfo{
-    pub sender: String,
-    pub tokens: u128,
-    pub data: TransactionDataInfo,
-    pub signature: Option<String>,
-}
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
-pub enum TransactionDataInfo{
-    CreateAccountInfo { user: String },
-    TransferTokensInfo { receiver: String, token: u128 },
-}
+
+//Not use
+//
+// #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+// pub enum TransactionData {
+//     CreateAccount { user: String },
+//     TransferTokens { receiver: Address, token: u128 },
+//     //ChangeStoreValue { address: Address, store: Store },
+//     //CreateTokens { receiver: Address, amount: u128 },
+// }
+// #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+// pub struct TransactionInfo{
+//     pub sender: String,
+//     pub tokens: u128,
+//     pub data: TransactionDataInfo,
+//     pub signature: Option<String>,
+// }
+// #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+// pub enum TransactionDataInfo{
+//     CreateAccountInfo { user: String },
+//     TransferTokensInfo { receiver: String, token: u128 },
+// }
